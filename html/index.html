@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <script src="uPlot.iife.min.js"></script>
+  <script src="psychrolib.min.js"></script>
+  <link rel="stylesheet" href="uPlot.min.css">
+  <style>
+    body {
+      text-align: center;
+    }
+
+    .cards-can {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: flex-start;
+      align-content: center;
+    }
+
+    .val-card {
+      padding: 0.5em;
+      font-size: 60px;
+      text-align: center;
+      line-height: 0;
+      margin: 0;
+    }
+
+    .ctrl-card {
+      padding: 0.5em;
+      font-size: 24px;
+      text-align: center;
+    }
+
+
+    .card {
+      box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+      transition: 0.3s;
+      min-width: 320px;
+      border-radius: 5px;
+      margin: 20px;
+    }
+
+    .card:hover {
+      box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+    }
+
+    .card-title {
+      border-radius: 5px 5px 0 0;
+      padding: 2px 16px;
+      color: white;
+      background-color: #17a1a5;
+      text-align: left;
+    }
+
+    .card-body-chart {
+      pad: 6px;
+    }
+
+    .chart {
+      width: 320px;
+      height: 200px;
+      border-bottom: 1px solid #000000;
+    }
+
+    .input-grid-container {
+      display: grid;
+      grid-template-columns: 200px 100px;
+      grid-template-rows: 1fr;
+      gap: 1px 1px;
+    }
+
+    .onoffswitch {
+      position: relative;
+      width: 88px;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      margin: auto;
+    }
+
+    .onoffswitch-checkbox {
+      display: none;
+    }
+
+    .onoffswitch-label {
+      display: block;
+      overflow: hidden;
+      cursor: pointer;
+      border: 2px solid #FFFFFF;
+      border-radius: 50px;
+    }
+
+    .onoffswitch-inner {
+      display: block;
+      width: 200%;
+      margin-left: -100%;
+      transition: margin 0.3s ease-in 0s;
+    }
+
+    .onoffswitch-inner:before,
+    .onoffswitch-inner:after {
+      display: block;
+      float: left;
+      width: 50%;
+      height: 18px;
+      padding: 0;
+      line-height: 18px;
+      font-size: 12px;
+      color: white;
+      font-family: Trebuchet, Arial, sans-serif;
+      font-weight: bold;
+      box-sizing: border-box;
+    }
+
+    .onoffswitch-inner:before {
+      content: "AUTO";
+      padding-left: 7px;
+      background-color: #EEEEEE;
+      color: #17A1A5;
+      text-align: left;
+    }
+
+    .onoffswitch-inner:after {
+      content: "MANUAL";
+      padding-right: 7px;
+      background-color: #EEEEEE;
+      color: #999999;
+      text-align: right;
+    }
+
+    .onoffswitch-switch {
+      display: block;
+      width: 22px;
+      margin: -2px;
+      background: #A1A1A1;
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      right: 66px;
+      border: 2px solid #FFFFFF;
+      border-radius: 50px;
+      transition: all 0.3s ease-in 0s;
+    }
+
+    .onoffswitch-checkbox:checked+.onoffswitch-label .onoffswitch-inner {
+      margin-left: 0;
+    }
+
+    .onoffswitch-checkbox:checked+.onoffswitch-label .onoffswitch-switch {
+      right: 0px;
+      background-color: #17A1A5;
+    }
+
+
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%;
+      margin: 9px 0;
+    }
+
+    input[type=range]:focus {
+      outline: none;
+    }
+
+    input[type=range]::-webkit-slider-runnable-track {
+      width: 100%;
+      height: 4px;
+      cursor: pointer;
+      box-shadow: 0px 0px 0px rgba(0, 0, 0, 0), 0px 0px 0px rgba(13, 13, 13, 0);
+      background: #aaaaaa;
+      border-radius: 25px;
+      border: 0px solid #000000;
+    }
+
+    input[type=range]::-webkit-slider-thumb {
+      box-shadow: 0px 0px 0px #000000, 0px 0px 0px #0d0d0d;
+      border: 1px solid #ffffff;
+      height: 22px;
+      width: 22px;
+      border-radius: 11px;
+      background: #17a1a5;
+      cursor: pointer;
+      -webkit-appearance: none;
+      margin-top: -9px;
+    }
+
+    input[type=range]:focus::-webkit-slider-runnable-track {
+      background: #adadad;
+    }
+
+    input[type=range]::-moz-range-track {
+      width: 100%;
+      height: 4px;
+      cursor: pointer;
+      box-shadow: 0px 0px 0px rgba(0, 0, 0, 0), 0px 0px 0px rgba(13, 13, 13, 0);
+      background: #aaaaaa;
+      border-radius: 25px;
+      border: 0px solid #000000;
+    }
+
+    input[type=range]::-moz-range-thumb {
+      box-shadow: 0px 0px 0px #000000, 0px 0px 0px #0d0d0d;
+      border: 1px solid #ffffff;
+      height: 22px;
+      width: 22px;
+      border-radius: 11px;
+      background: #17a1a5;
+      cursor: pointer;
+    }
+
+    input[type=range]::-ms-track {
+      width: 100%;
+      height: 4px;
+      cursor: pointer;
+      background: transparent;
+      border-color: transparent;
+      color: transparent;
+    }
+
+    input[type=range]::-ms-fill-lower {
+      background: #a7a7a7;
+      border: 0px solid #000000;
+      border-radius: 50px;
+      box-shadow: 0px 0px 0px rgba(0, 0, 0, 0), 0px 0px 0px rgba(13, 13, 13, 0);
+    }
+
+    input[type=range]::-ms-fill-upper {
+      background: #aaaaaa;
+      border: 0px solid #000000;
+      border-radius: 50px;
+      box-shadow: 0px 0px 0px rgba(0, 0, 0, 0), 0px 0px 0px rgba(13, 13, 13, 0);
+    }
+
+    input[type=range]::-ms-thumb {
+      box-shadow: 0px 0px 0px #000000, 0px 0px 0px #0d0d0d;
+      border: 1px solid #ffffff;
+      height: 22px;
+      width: 22px;
+      border-radius: 11px;
+      background: #17a1a5;
+      cursor: pointer;
+      height: 4px;
+    }
+
+    input[type=range]:focus::-ms-fill-lower {
+      background: #aaaaaa;
+    }
+
+    input[type=range]:focus::-ms-fill-upper {
+      background: #adadad;
+    }
+
+    small {
+      font-size: 60%;
+    }
+
+    .grid-container {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      grid-template-rows: 1fr;
+      gap: 1px 1px;
+      grid-template-areas: "name-grid button-grid";
+    }
+    .name-grid { grid-area: name-grid; }
+    .button-grid { 
+      grid-area: button-grid;
+    }
+
+    .schedule-setting {
+      display: none;
+    }
+    .setting-button {
+      background:transparent;
+      height: 100%;
+      border: none;
+      color:white;
+    }
+    .setting-button:active{
+      border: none;
+    }
+    .schedule-setting-input {
+      text-align: right;
+      width: 70px;
+    }
+
+
+    @media screen and (max-width: 480px) {
+      body {
+        margin: 2px;
+      }
+
+      .card {
+        margin-left: 2px;
+        margin-right: 2px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <h1>AquaMatic</h1>
+  <div class="cards-can">
+    <div class="card">
+      <div class="card-title">
+        <h2>TEMPERATURE</h2>
+      </div>
+      <div class="card-body-chart">
+        <h1><span id="airTempChartLabels">NaN</span><small>°C</small></h1>
+        <div id="airTempChart"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">
+        <h2>WET-BULB TEMP</h2>
+      </div>
+      <div class="card-body-chart">
+        <h1><span id="airWetbChartLabels">NaN</span><small>°C</small></h1>
+        <div id="airWetbChart"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">
+        <h2>HUMIDITY</h2>
+      </div>
+      <div class="card-body-chart">
+        <h1><span id="airHumiChartLabels">NaN</span><small>%</small></h1>
+        <div id="airHumiChart"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <h2>PRESSURE</h2>
+      </div>
+      <div class="card-body-chart">
+        <h1><span id="airPresChartLabels">NaN</span><small>Pa</small></h1>
+        <div id="airPresChart"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">
+        <h2>WATER TEMPERATURE</h2>
+      </div>
+      <div class="card-body-chart">
+        <h1><span id="wtrTempChartLabels">NaN</span><small>°C</small></h1>
+        <div id="wtrTempChart"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">
+        <h2>FAN LOAD</h2>
+      </div>
+      <div class="card-body-chart">
+        <h1><span id="fanLoadChartLabels">NaN</span></h1>
+        <div id="fanLoadChart"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title grid-container">
+        <div class="name-grid">
+          <h2>LED SCHEDULE</h2>
+        </div>
+        <div class="button-grid">
+          <button class="setting-button" type="button" onclick="toggleScheduleSetting()">
+            <svg style="width:24px;height:24px;cursor:pointer" id="schedule-setting-open" viewBox="0 0 24 24">
+              <path fill="currentColor" d="M3,17V19H9V17H3M3,5V7H13V5H3M13,21V19H21V17H13V15H11V21H13M7,9V11H3V13H7V15H9V9H7M21,13V11H11V13H21M15,9H17V7H21V5H17V3H15V9Z" />
+            </svg>
+            <svg style="width:24px;height:24px;cursor:pointer;display:none;" id="schedule-setting-close" viewBox="0 0 24 24">
+              <path fill="currentColor" d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" />
+          </svg>
+          </button>
+        </div>
+      </div>
+      <div class="card-body-chart">
+        <h1><span id="ledScheduleChartLabels">NaN</span><small></small></h1>
+        <div id="led_schedule" class="chart"></div>
+
+        <div class="schedule-setting" id="schedule-setting">     
+          <div class="val-card schedule-setting-content" id="schedule-setting-content">
+            
+          </div>
+          <div style="padding-bottom:12px">
+            <button id="btn-schedule-apply" onclick="applySchedule()">APPLY</button>
+            <button id="btn-schedule-reset" onclick="resetSchedule()">RESET</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">
+        <h2>Manual Control</h2>
+      </div>
+      <div class="ctrl-card">
+        <label for="led1">LED 1</label>
+        <div class="input-grid-container">
+          <input type="range" min=0 max=100 value=0 class="rngslider" id="led-slider" onchange="ledControl(this.value)">
+          <div class="onoffswitch">
+            <input
+              type="checkbox"
+              name="onoffswitch"
+              class="onoffswitch-checkbox"
+              id="led-switch"
+              checked
+              onchange="ledSwitch(this)"
+            />
+            <label class="onoffswitch-label" for="led-switch">
+              <span class="onoffswitch-inner"></span>
+              <span class="onoffswitch-switch"></span>
+            </label>
+          </div>
+        </div>
+        <label for="fan">FAN</label>
+        <div class="input-grid-container">
+          <input type="range" min=0 max=100 value=0 class="rngslider" id="fan-slider" onchange="fanControl(this.value)">
+          <div class="onoffswitch">
+            <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="fan-switch" disabled>
+            <label class="onoffswitch-label" for="fan-switch">
+              <span class="onoffswitch-inner"></span>
+              <span class="onoffswitch-switch"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    const HOST = 'http://192.168.1.205'
+    // const HOST = ''
+    
+    var scheduleTemplate = ''
+    var schedule = ''
+    var dataIndex = 0
+
+    psychrolib.SetUnitSystem(psychrolib.SI)
+    var byId = function (id) { return document.getElementById(id) }
+    var byName = function (name) { return document.getElementsByName(name) }
+
+    const opts = {
+      width: 320,
+      height: 200,
+      legend: { show: false },
+      scales: {
+        x: { time: true },
+        y: { range: [25, 35] },
+      },
+      series: [
+        {},
+        {
+          label: "CPU",
+          scale: "y",
+          value: (u, v) => v == null ? "-" : v.toFixed(1),
+          stroke: "#17a1a5",
+          width: 2,
+        },
+      ],
+      axes: [
+        {
+          scale: 'x',
+          space: 30,
+          values: [
+            [3600, "{H}", 4, "{H} {M}/{D}"],
+            [60, "{H}:{mm}", 4, "{H}:{mm} {M}/{D}"],
+          ],
+          gap: 5,
+          size: 20,
+          grid: { width: 1 },
+          ticks: { show: false },
+        },
+        {
+          scale: "y",
+          space: 15,
+          values: (u, vals, space) => vals.map(v => +v.toFixed(1)),
+          show: true,
+          gap: 5,
+          size: 25,
+          grid: { width: 1 },
+          ticks: { show: false }
+        },
+        { // led schedule load indicator
+          scale: "",
+          side: 1,
+          gap: 5,
+          size: 5,
+          grid: { show: false },
+          ticks: { show: false }
+        }
+      ],
+    }
+
+    var dataCharts = {}
+    opts.scales.y.range = [40, 90]
+    dataCharts['airHumi'] = new uPlot(opts, [[],[]], byId("airHumiChart"))
+    opts.scales.y.range = [28, 36]
+    dataCharts['airTemp'] = new uPlot(opts, [[],[]], byId("airTempChart"))
+    opts.scales.y.range = [24, 30]
+    dataCharts['airWetb'] = new uPlot(opts, [[],[]], byId("airWetbChart"))
+    opts.scales.y.range = [26, 32]
+    dataCharts['wtrTemp'] = new uPlot(opts, [[],[]], byId("wtrTempChart"))
+    opts.scales.y.range = [0, 100]
+    dataCharts['fanLoad'] = new uPlot(opts, [[],[]], byId("fanLoadChart"))
+    opts.scales.y.range = [99000, 101000]
+    opts.axes[1].size = 50
+    dataCharts['airPres'] = new uPlot(opts, [[],[]], byId("airPresChart"))
+
+    var updateChartInterval = 5 * 60 * 1000;
+    var sleepInterval = 10 * 1000;
+    setInterval(function () {
+      updateScheduleChart()
+      if (new Date().getTime() % updateChartInterval < sleepInterval) {
+        updateChart()
+        updateLedStatus()
+        updateFanStatus()
+      }
+    }, sleepInterval)
+
+    updateChart()
+    async function updateChart() {
+      const response = await fetch(`${HOST}/api/log`)
+      let chartData = (await response.json()).Data
+      console.log("chartData: ", chartData)
+
+      chartData['wtrTemp'] = chartData.wtrTemp.map(t => t + 20)
+      chartData['airWetb'] = chartData.airTemp.map((t, i) => Math.round(
+        psychrolib.GetTWetBulbFromRelHum(
+            chartData.airTemp[i] / 10,
+            chartData.airHumi[i] / 1000,
+            chartData.airPres[i] + 80000,
+        ) * 10, 0)
+      )
+
+      let time = new Date().getTime()
+      let startTime = (time - time % (5 * 60 * 1000)) / 1000 - 86400
+      let timestamps = chartData['airTemp'].map((v, i) => startTime + 5 * 60 * (i + 1))
+
+      let idx = chartData.index
+      Object.keys(dataCharts).forEach(name => {
+        let log = chartData[name]
+        let data = log.slice(idx+1).concat(log.slice(0, idx+1))
+        data = name == 'airPres' ? data.map(d => d + 80000) : data.map(d => d / 10);
+
+        dataCharts[name].setData([timestamps, data])
+        byId(name + "ChartLabels").textContent = data.slice(-1)[0]
+      })
+    }
+
+    opts.scales.y.range = [0, 100]
+    opts.scales.x.time = false
+    opts.axes[0].space = 20
+    opts.axes[1].size = 25
+    opts.series.push({
+      label: "current load",
+      scale: "y",
+      value: (u, v) => v == null ? "-" : v.toFixed(1),
+      stroke: "#e1001a",
+      width: 6,
+    })
+    delete opts.axes[0].values
+    var ledScheduleChart = new uPlot(opts, [[],[],[]], byId("led_schedule"))
+    function updateScheduleChart() {
+      let tnow = new Date()
+      tnow = tnow.getHours() + tnow.getMinutes() / 60 + tnow.getSeconds() / 3600
+      let data = [schedule.map(s => s.t / 3600), schedule.map(s => s.l), schedule.map(() => null)]
+
+      let idx = data[0].findIndex((s, i) => data[0][i - 1] <= tnow && tnow <= s)
+      let x0 = data[0][idx - 1]
+      let y0 = data[1][idx - 1]
+      let x1 = data[0][idx]
+      let y1 = data[1][idx]
+      let currentLoad = parseInt(((tnow - x0) / (x1 - x0) * (y1 - y0) + y0))
+
+      data[0].splice(idx, 0, tnow)
+      data[1].splice(idx, 0, currentLoad)
+      data[2].splice(idx, 0, currentLoad)
+
+      byId('ledScheduleChartLabels').textContent = currentLoad
+      ledScheduleChart.setData(data)
+    }
+
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+    async function ledControl(val) {
+      const response = await fetch(`${HOST}/api/led?val=${val}`)
+      console.log(await response.json())
+    }
+    async function fanControl(val) {
+      const response = await fetch(`${HOST}/api/fan?val=${val}`)
+      console.log(await response.json())
+    }
+    function buildScheduleSetting() {
+      var template = ``
+      scheduleTemplate.forEach((s,i) => 
+        template += `<div>
+          <input type="number" class="schedule-setting-input" name="schedule-time" id="schedule-time-${i}"
+            value=${s.t} max=2400 onfocusout="saveTemplate()">
+          <input type="number" class="schedule-setting-input" name="schedule-load" id="schedule-load-${i}"
+            value=${s.l} max=100 onfocusout="saveTemplate()">
+          <button onclick="addSetPoint(${i})">+</button>
+          <button onclick="removeSetPoint(${i})">X</button>
+        </div>`
+      )
+      byId('schedule-setting-content').innerHTML = template
+    }
+    function saveTemplate() {
+      scheduleTemplate = [...byName('schedule-time')].map((s, i) => ({
+        t: parseInt(s.value),
+        l: parseFloat(byName('schedule-load')[i].value)
+      }))
+    }
+    function addSetPoint(i) {
+      scheduleTemplate.splice(i+1, 0, {t:null, l:null})
+      buildScheduleSetting()
+    }
+    function removeSetPoint(i) {
+      scheduleTemplate.splice(i, 1)
+      buildScheduleSetting()
+    }
+    function toggleScheduleSetting() {
+      resetSchedule()
+      const status = byId('schedule-setting').style.display == 'block' ? 'none' : 'block'
+      const icon = status == 'block' ? 'schedule-setting-close' : 'schedule-setting-open'
+      
+      byId('schedule-setting').style.display = status
+      byId('schedule-setting-open').style.display = status == 'block' ? 'none' : 'block'
+      byId('schedule-setting-close').style.display = status == 'block' ? 'block' : 'none'
+    }
+    function resetSchedule() {
+      scheduleTemplate = schedule.map(s => ({t: second2hourminute(s.t), l: s.l}))
+      buildScheduleSetting()
+    }
+    async function applySchedule() {
+      byId('btn-schedule-apply').disabled = true
+
+      const newSchdule = [...byName('schedule-time')].map((s, i) => ({
+        t: parseInt(hourminute2second(s.value)),
+        l: parseFloat(byName('schedule-load')[i].value)
+      }))
+
+      const response = await fetch(`${HOST}/api/led-schedule`, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(newSchdule)
+      })
+      console.log(response)
+
+      const msg = await response.json()
+      console.log('applySchedule: ', msg)
+
+      getSchedule()
+
+      alert("Schedule setting completed.")
+      
+      byId('btn-schedule-apply').disabled = false
+      byId("schedule-setting").style.display = "none"
+
+    }
+    getSchedule()
+    async function getSchedule() {
+      const response = await fetch(`${HOST}/api/led-schedule`)
+      const msg = await response.json()
+
+      schedule = msg.Data
+      // make a deep copy of schedule, array.slice() will only make a shallow copy.
+      // and convert minute based time to hourminute formated time
+      scheduleTemplate = schedule.map(s => ({t: second2hourminute(s.t), l: s.l}))
+      console.log(schedule)
+
+      updateScheduleChart()
+    }
+    updateLedStatus()
+    async function updateLedStatus() {
+      const response = await fetch(`${HOST}/api/led`)
+      const msg = await response.json()
+      console.log(msg)
+
+      byId('led-switch').checked = msg.Data.autoMode
+      byId('led-slider').value = msg.Data.load
+
+    }
+    updateFanStatus()
+    async function updateFanStatus() {
+      const response = await fetch(`${HOST}/api/led`)
+      const msg = await response.json()
+      byId('fan-slider').value = msg.Data
+    }
+    async function ledSwitch(el) {
+      const response = await fetch(`${HOST}/api/led?mode=${el.checked ? 'auto' : 'manual'}`)
+      console.log(await response.json())
+    }
+    function second2hourminute(v) {
+      return Math.floor(v / 3600) * 100 + Math.floor(v % 3600 / 60)
+    }
+    function hourminute2second(v) {
+      return Math.floor(v / 100) * 3600 + v % 100 * 60
+    }
+  </script>
+</body>
+
+</html>
